@@ -58,16 +58,30 @@ tile_codes <- get_tile_codes(file_paths = file_paths)
 
 
 
-## Test (nur) mit Gleisdorf-Kachel:
+## Test für einzelnen tile_code:
 dbDisconnect(conn) ## ggf. bestehende DB-Verbindung schließen
 ## Verbindung öffnen
-conn <- dbConnect(drv = SQLite(), dbname = './output/gleisdorf.sqlite')
+conn <- dbConnect(drv = SQLite(), dbname = './output/oswald.sqlite')
+
+
 
 prepare_db_output_table(conn, 'raw')
-tile_codes <- c("26850-47525") ## Kachel Gleisdorf für Testzwecke:
+
+tile_codes <- c(
+  ## '28075-46925' ## Oswald
+  ##"26850-47525" ## Kachel Gleisdorf:
+  ##"28625-48275" ## Rabensburg: minimale Dachfläche
+)
+
+rasters <- prepare_rasters(file_paths = file_paths, tile_code = tile_codes[1])
+
+
+names(rasters) |> Map(f = \(n) writeRaster(rasters[[n]],
+                                           sprintf('output/oswald_%s.tiff', n), overwrite = TRUE)
+)
 
 calc_and_save(file_paths, 
-              tile_code = tile_code,
+              tile_code = tile_codes[1],
               conn = conn,
               i = 1,
               save_excels = TRUE, ## auch als CSV speichern
